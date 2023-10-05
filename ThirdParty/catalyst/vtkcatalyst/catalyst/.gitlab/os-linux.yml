@@ -1,0 +1,66 @@
+# Linux-specific builder configurations and build commands
+
+## Base images
+
+### CentOS
+#
+# CentOS 7 is the primary deployment platform. This gains us maximum
+# compatibility with many Linux distros while also providing easy ways to get
+# newer compilers.
+
+.centos7:
+    image: "kitware/paraview:ci-superbuild-centos7-20200210"
+
+    variables:
+        GIT_SUBMODULE_STRATEGY: none
+        LAUNCHER: "scl enable devtoolset-7 --"
+        GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
+
+.centos7_plain:
+    extends: .centos7
+
+    variables:
+        CMAKE_CONFIGURATION: linux_plain
+
+.fedora31:
+    image: "kitware/paraview:ci-superbuild-fedora31-20200218"
+
+    variables:
+        GIT_SUBMODULE_STRATEGY: none
+        GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
+
+.fedora31_plain:
+    extends: .fedora31
+
+    variables:
+        CMAKE_CONFIGURATION: linux_plain
+
+## Tags
+
+.linux_builder_tags:
+    tags:
+        - build
+        - docker
+        - linux
+
+## Linux-specific scripts
+
+.before_script_linux: &before_script_linux
+    - .gitlab/ci/cmake.sh
+    - .gitlab/ci/ninja.sh
+    - export PATH=$PWD/.gitlab:$PWD/.gitlab/cmake/bin:$PATH
+    - cmake --version
+    - ninja --version
+
+.cmake_build_linux:
+    stage: build-test
+
+    script:
+        - *before_script_linux
+        - export GIT_CEILING_DIRECTORIES=$PWD
+        - "$LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake"
+        - "$LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake"
+        - "$LAUNCHER ctest --output-on-failure -V -S .gitlab/ci/ctest_test.cmake"
+
+    interruptible: true
+    timeout: 5 minutes

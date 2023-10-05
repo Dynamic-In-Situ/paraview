@@ -1,0 +1,14 @@
+# Lists of paths for artifacts of various stages.
+
+.cmake_build_artifacts:
+    artifacts:
+        expire_in: 1d
+        when: always
+        paths:
+            # CTest files.
+            - build/CTestCustom*.cmake
+            - build/CTestTestfile.cmake
+            - build/Testing/
+
+            # CDash files.
+            - build/DartConfiguration.tcl
