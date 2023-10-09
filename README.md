@@ -3,7 +3,7 @@
 Introduction
 ============
 [ParaView][] is an open-source, multi-platform data analysis and
-visualization application based on
+visualization application based on  
 [Visualization Toolkit (VTK)][VTK].
 
 The first public release was announced in October 2002. Since then, the project
